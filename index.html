@@ -1,0 +1,2055 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Escolha de Mesa · Engenharias UFSCar 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root{
+    --ink:#1c1f26;
+    --paper:#f7f4ee;
+    --card:#ffffff;
+    --gold:#c79a4b;
+    --gold-deep:#a87d33;
+    --free:#3f9d6e;
+    --free-soft:#e6f4ec;
+    --taken:#c75c4a;
+    --taken-soft:#fbe9e5;
+    --reserved:#8a8f9b;
+    --line:#e3ddd0;
+    --muted:#73706a;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--paper);}
+  body{
+    font-family:'Inter',sans-serif;
+    color:var(--ink);
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+  }
+  #root{
+    width:100%;
+    max-width:1100px;
+    background:var(--paper);
+    border-radius:16px;
+    overflow:hidden;
+    min-height:640px;
+    display:flex;
+    flex-direction:column;
+    box-shadow:0 12px 40px rgba(0,0,0,.08);
+  }
+  .head{
+    background:var(--ink);
+    color:var(--paper);
+    padding:20px 24px 18px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+  }
+  .head h1{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:22px;
+    margin:0;
+    letter-spacing:.2px;
+  }
+  .head .eyebrow{
+    font-size:10.5px;
+    letter-spacing:1.6px;
+    text-transform:uppercase;
+    color:var(--gold);
+    font-weight:600;
+    margin:0 0 4px;
+  }
+  .body{display:flex;flex:1;min-height:0;}
+  .mapcol{flex:1.3;padding:20px;display:flex;flex-direction:column;min-width:0;}
+  .sidecol{flex:1;border-left:1px solid var(--line);padding:20px;overflow-y:auto;max-height:680px;}
+
+  .legend{display:flex;gap:18px;margin-bottom:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);}
+  .legend span{display:inline-flex;align-items:center;gap:6px;}
+  .dot{width:11px;height:11px;border-radius:3px;display:inline-block;}
+
+  svg{width:100%;height:auto;display:block;}
+  .table-shape{cursor:pointer;transition:transform .12s ease;transform-box:fill-box;transform-origin:center;}
+  .table-shape:hover{transform:scale(1.08);}
+  .table-shape.disabled{cursor:default;}
+  .room-label{font-family:'Inter',sans-serif;font-size:9px;fill:var(--muted);font-weight:600;letter-spacing:.3px;}
+  .room-box{fill:none;stroke:var(--line);stroke-width:1.2;}
+  .table-num{font-family:'Inter',sans-serif;font-size:7.5px;font-weight:700;text-anchor:middle;dominant-baseline:central;pointer-events:none;}
+
+  .searchwrap{margin-bottom:14px;}
+  .searchwrap input{width:100%;padding:10px 14px;border-radius:10px;border:1.5px solid var(--line);font-size:14px;background:var(--card);}
+  .searchwrap input:focus{outline:none;border-color:var(--gold);}
+
+  .progress{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:16px;}
+  .progress .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;}
+  .progress .num{font-family:'Fraunces',serif;font-size:26px;font-weight:700;color:var(--gold-deep);}
+  .progress .label{font-size:12px;color:var(--muted);}
+  .bar{height:7px;background:#eee5d2;border-radius:6px;overflow:hidden;}
+  .bar-fill{height:100%;background:var(--gold);border-radius:6px;transition:width .3s ease;}
+
+  .plist{list-style:none;margin:0;padding:0;}
+  .prow{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:10px;margin-bottom:6px;background:var(--card);border:1px solid var(--line);cursor:pointer;}
+  .prow:hover{border-color:var(--gold);}
+  .prow.assigned{background:var(--free-soft);}
+  .prow .pname{font-size:13.5px;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .badge{font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:6px;white-space:nowrap;}
+  .badge.tipo8{background:#eef1f5;color:#566;}
+  .badge.tipo10{background:#fdeccb;color:var(--gold-deep);}
+  .badge.tipo12{background:#e7e2f5;color:#5a4a8a;}
+  .badge.mesa{background:var(--ink);color:var(--paper);}
+  .badge.multi{background:#fff3b0;color:#7a6300;}
+
+  .panel-title{font-family:'Fraunces',serif;font-weight:700;font-size:16px;margin:0 0 12px;}
+
+  .modal-overlay{position:fixed;inset:0;background:rgba(20,20,20,.55);display:flex;align-items:center;justify-content:center;z-index:50;}
+  .modal{background:var(--card);border-radius:16px;padding:24px;width:min(420px,90%);box-shadow:0 20px 50px rgba(0,0,0,.3);}
+  .modal h3{font-family:'Fraunces',serif;margin:0 0 4px;font-size:19px;}
+  .modal p.sub{color:var(--muted);font-size:13px;margin:0 0 18px;}
+  .modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:6px;}
+  .btn{border:none;padding:10px 18px;border-radius:9px;font-weight:600;font-size:13.5px;cursor:pointer;font-family:'Inter',sans-serif;}
+  .btn:hover{opacity:.85;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .btn-primary{background:var(--ink);color:var(--paper);}
+  .btn-ghost{background:transparent;color:var(--muted);}
+  .btn-danger{background:var(--taken);color:#fff;}
+  .btn-gold{background:var(--gold);color:var(--ink);}
+
+  .empty{color:var(--muted);font-size:13px;text-align:center;padding:30px 10px;}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);padding:12px 20px;border-radius:10px;font-size:13.5px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.25);z-index:60;max-width:90%;text-align:center;}
+  .topactions{display:flex;gap:8px;align-items:center;}
+  .iconbtn{background:rgba(255,255,255,.1);border:none;color:var(--paper);width:34px;height:34px;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+  .iconbtn:hover{background:rgba(255,255,255,.2);}
+  .who-banner{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px;}
+  .who-banner .role{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--gold-deep);font-weight:700;margin-bottom:6px;}
+  .small{font-size:11.5px;color:var(--muted);margin-top:6px;}
+  .loadingscreen{display:flex;align-items:center;justify-content:center;min-height:400px;color:var(--muted);font-size:14px;flex-direction:column;gap:10px;}
+  .spinner{width:28px;height:28px;border:3px solid var(--line);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  ::-webkit-scrollbar{width:8px;}
+  ::-webkit-scrollbar-thumb{background:#ddd5c2;border-radius:4px;}
+
+  @media (max-width:760px){
+    .body{flex-direction:column;}
+    .sidecol{border-left:none;border-top:1px solid var(--line);max-height:none;}
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script>
+const {
+  useState,
+  useEffect,
+  useMemo,
+  useCallback
+} = React;
+
+/* ====================================================================
+   CONFIGURAÇÃO — cole aqui a URL do seu Google Apps Script
+   (Implantar > Nova implantação > App da Web > copiar URL que termina em /exec)
+   ==================================================================== */
+const API_URL = "COLE_AQUI_A_URL_DO_APPS_SCRIPT";
+const COORDS = {
+  "37": {
+    "x": 254.4,
+    "y": 243.4
+  },
+  "38": {
+    "x": 273.4,
+    "y": 243.4
+  },
+  "39": {
+    "x": 292.2,
+    "y": 243.4
+  },
+  "40": {
+    "x": 311.6,
+    "y": 243.4
+  },
+  "36": {
+    "x": 254.4,
+    "y": 263.3
+  },
+  "35": {
+    "x": 273.4,
+    "y": 263.3
+  },
+  "34": {
+    "x": 292.2,
+    "y": 263.3
+  },
+  "33": {
+    "x": 311.4,
+    "y": 263.3
+  },
+  "29": {
+    "x": 254.4,
+    "y": 283.3
+  },
+  "30": {
+    "x": 273.4,
+    "y": 283.3
+  },
+  "31": {
+    "x": 292.2,
+    "y": 283.3
+  },
+  "32": {
+    "x": 311.4,
+    "y": 283.3
+  },
+  "28": {
+    "x": 254.4,
+    "y": 304.0
+  },
+  "27": {
+    "x": 273.4,
+    "y": 304.0
+  },
+  "26": {
+    "x": 292.4,
+    "y": 304.0
+  },
+  "25": {
+    "x": 311.4,
+    "y": 304.0
+  },
+  "21": {
+    "x": 254.4,
+    "y": 347.4
+  },
+  "22": {
+    "x": 273.4,
+    "y": 347.4
+  },
+  "23": {
+    "x": 292.4,
+    "y": 347.3
+  },
+  "24": {
+    "x": 311.4,
+    "y": 347.4
+  },
+  "20": {
+    "x": 254.4,
+    "y": 367.8
+  },
+  "19": {
+    "x": 272.9,
+    "y": 367.8
+  },
+  "18": {
+    "x": 291.9,
+    "y": 367.8
+  },
+  "17": {
+    "x": 311.0,
+    "y": 367.8
+  },
+  "13": {
+    "x": 254.0,
+    "y": 387.2
+  },
+  "14": {
+    "x": 272.9,
+    "y": 387.4
+  },
+  "15": {
+    "x": 291.9,
+    "y": 387.2
+  },
+  "16": {
+    "x": 311.0,
+    "y": 387.2
+  },
+  "12": {
+    "x": 254.0,
+    "y": 407.2
+  },
+  "11": {
+    "x": 272.9,
+    "y": 407.2
+  },
+  "10": {
+    "x": 291.9,
+    "y": 407.2
+  },
+  "9": {
+    "x": 311.4,
+    "y": 407.2
+  },
+  "5": {
+    "x": 254.4,
+    "y": 427.3
+  },
+  "6": {
+    "x": 273.4,
+    "y": 427.3
+  },
+  "7": {
+    "x": 292.2,
+    "y": 427.3
+  },
+  "8": {
+    "x": 311.4,
+    "y": 427.3
+  },
+  "4": {
+    "x": 254.4,
+    "y": 447.7
+  },
+  "3": {
+    "x": 273.4,
+    "y": 447.7
+  },
+  "2": {
+    "x": 292.2,
+    "y": 447.7
+  },
+  "1": {
+    "x": 311.4,
+    "y": 447.7
+  },
+  "41": {
+    "x": 437.8,
+    "y": 246.4
+  },
+  "42": {
+    "x": 456.6,
+    "y": 246.4
+  },
+  "43": {
+    "x": 475.6,
+    "y": 246.4
+  },
+  "44": {
+    "x": 494.8,
+    "y": 246.4
+  },
+  "45": {
+    "x": 514.1,
+    "y": 246.1
+  },
+  "50": {
+    "x": 437.6,
+    "y": 266.6
+  },
+  "49": {
+    "x": 456.6,
+    "y": 266.6
+  },
+  "48": {
+    "x": 475.6,
+    "y": 266.6
+  },
+  "47": {
+    "x": 494.8,
+    "y": 266.8
+  },
+  "46": {
+    "x": 514.1,
+    "y": 266.5
+  },
+  "51": {
+    "x": 437.6,
+    "y": 286.7
+  },
+  "52": {
+    "x": 456.5,
+    "y": 286.7
+  },
+  "53": {
+    "x": 475.5,
+    "y": 286.7
+  },
+  "54": {
+    "x": 494.6,
+    "y": 286.7
+  },
+  "55": {
+    "x": 513.9,
+    "y": 286.6
+  },
+  "60": {
+    "x": 437.6,
+    "y": 313.9
+  },
+  "59": {
+    "x": 456.5,
+    "y": 313.9
+  },
+  "58": {
+    "x": 475.5,
+    "y": 313.9
+  },
+  "57": {
+    "x": 494.6,
+    "y": 313.9
+  },
+  "56": {
+    "x": 513.9,
+    "y": 313.7
+  },
+  "61": {
+    "x": 437.6,
+    "y": 334.4
+  },
+  "62": {
+    "x": 456.5,
+    "y": 334.4
+  },
+  "63": {
+    "x": 475.5,
+    "y": 334.4
+  },
+  "64": {
+    "x": 494.6,
+    "y": 334.4
+  },
+  "65": {
+    "x": 513.9,
+    "y": 334.2
+  },
+  "70": {
+    "x": 437.6,
+    "y": 355.0
+  },
+  "69": {
+    "x": 456.5,
+    "y": 355.0
+  },
+  "68": {
+    "x": 475.5,
+    "y": 355.0
+  },
+  "67": {
+    "x": 494.6,
+    "y": 355.0
+  },
+  "66": {
+    "x": 513.9,
+    "y": 354.7
+  },
+  "71": {
+    "x": 437.6,
+    "y": 402.4
+  },
+  "72": {
+    "x": 456.5,
+    "y": 402.4
+  },
+  "73": {
+    "x": 475.4,
+    "y": 402.4
+  },
+  "74": {
+    "x": 494.6,
+    "y": 402.4
+  },
+  "75": {
+    "x": 513.9,
+    "y": 402.1
+  },
+  "80": {
+    "x": 437.6,
+    "y": 422.9
+  },
+  "79": {
+    "x": 456.5,
+    "y": 422.9
+  },
+  "78": {
+    "x": 475.4,
+    "y": 422.9
+  },
+  "77": {
+    "x": 494.6,
+    "y": 422.9
+  },
+  "76": {
+    "x": 513.9,
+    "y": 422.6
+  },
+  "81": {
+    "x": 437.6,
+    "y": 443.0
+  },
+  "82": {
+    "x": 456.5,
+    "y": 443.0
+  },
+  "83": {
+    "x": 475.5,
+    "y": 443.0
+  },
+  "84": {
+    "x": 494.6,
+    "y": 443.0
+  },
+  "85": {
+    "x": 513.9,
+    "y": 442.8
+  },
+  "102": {
+    "x": 543.3,
+    "y": 336.9
+  },
+  "103": {
+    "x": 562.3,
+    "y": 337.0
+  },
+  "104": {
+    "x": 581.0,
+    "y": 336.7
+  },
+  "105": {
+    "x": 599.7,
+    "y": 336.9
+  },
+  "101": {
+    "x": 543.4,
+    "y": 356.7
+  },
+  "100": {
+    "x": 562.4,
+    "y": 356.8
+  },
+  "99": {
+    "x": 580.8,
+    "y": 357.4
+  },
+  "98": {
+    "x": 600.2,
+    "y": 357.2
+  },
+  "94": {
+    "x": 542.8,
+    "y": 402.4
+  },
+  "95": {
+    "x": 561.6,
+    "y": 402.4
+  },
+  "96": {
+    "x": 580.8,
+    "y": 402.4
+  },
+  "97": {
+    "x": 600.2,
+    "y": 402.2
+  },
+  "93": {
+    "x": 542.8,
+    "y": 422.4
+  },
+  "92": {
+    "x": 561.6,
+    "y": 422.4
+  },
+  "91": {
+    "x": 580.8,
+    "y": 422.4
+  },
+  "90": {
+    "x": 600.2,
+    "y": 422.2
+  },
+  "86": {
+    "x": 542.8,
+    "y": 442.6
+  },
+  "87": {
+    "x": 561.6,
+    "y": 442.6
+  },
+  "88": {
+    "x": 580.8,
+    "y": 442.6
+  },
+  "89": {
+    "x": 600.2,
+    "y": 442.3
+  },
+  "109": {
+    "x": 543.3,
+    "y": 316.6
+  },
+  "108": {
+    "x": 562.3,
+    "y": 316.7
+  },
+  "107": {
+    "x": 581.0,
+    "y": 316.5
+  },
+  "106": {
+    "x": 599.7,
+    "y": 316.6
+  },
+  "110": {
+    "x": 543.3,
+    "y": 276.4
+  },
+  "111": {
+    "x": 562.3,
+    "y": 276.5
+  },
+  "112": {
+    "x": 581.0,
+    "y": 276.3
+  },
+  "113": {
+    "x": 599.7,
+    "y": 276.4
+  },
+  "117": {
+    "x": 543.3,
+    "y": 256.1
+  },
+  "116": {
+    "x": 562.3,
+    "y": 256.2
+  },
+  "115": {
+    "x": 581.0,
+    "y": 255.9
+  },
+  "114": {
+    "x": 599.7,
+    "y": 256.1
+  },
+  "118": {
+    "x": 543.3,
+    "y": 235.9
+  },
+  "119": {
+    "x": 562.3,
+    "y": 236.1
+  },
+  "120": {
+    "x": 581.0,
+    "y": 235.8
+  },
+  "121": {
+    "x": 599.7,
+    "y": 235.9
+  },
+  "125": {
+    "x": 543.3,
+    "y": 217.6
+  },
+  "124": {
+    "x": 562.3,
+    "y": 217.8
+  },
+  "123": {
+    "x": 581.0,
+    "y": 217.5
+  },
+  "122": {
+    "x": 599.7,
+    "y": 217.6
+  },
+  "126": {
+    "x": 543.3,
+    "y": 197.7
+  },
+  "127": {
+    "x": 562.3,
+    "y": 197.8
+  },
+  "128": {
+    "x": 581.0,
+    "y": 197.5
+  },
+  "129": {
+    "x": 599.7,
+    "y": 197.7
+  },
+  "146": {
+    "x": 627.2,
+    "y": 276.4
+  },
+  "147": {
+    "x": 646.1,
+    "y": 276.5
+  },
+  "148": {
+    "x": 664.9,
+    "y": 276.1
+  },
+  "149": {
+    "x": 683.6,
+    "y": 276.4
+  },
+  "145": {
+    "x": 627.2,
+    "y": 256.0
+  },
+  "144": {
+    "x": 646.1,
+    "y": 256.2
+  },
+  "143": {
+    "x": 664.9,
+    "y": 255.9
+  },
+  "142": {
+    "x": 683.6,
+    "y": 256.1
+  },
+  "138": {
+    "x": 627.2,
+    "y": 235.9
+  },
+  "139": {
+    "x": 646.1,
+    "y": 236.1
+  },
+  "140": {
+    "x": 664.9,
+    "y": 235.8
+  },
+  "141": {
+    "x": 683.6,
+    "y": 235.9
+  },
+  "137": {
+    "x": 627.2,
+    "y": 217.6
+  },
+  "136": {
+    "x": 646.1,
+    "y": 217.7
+  },
+  "135": {
+    "x": 664.9,
+    "y": 217.5
+  },
+  "134": {
+    "x": 683.6,
+    "y": 217.6
+  },
+  "130": {
+    "x": 627.2,
+    "y": 197.7
+  },
+  "131": {
+    "x": 646.1,
+    "y": 197.8
+  },
+  "132": {
+    "x": 664.9,
+    "y": 197.5
+  },
+  "133": {
+    "x": 683.6,
+    "y": 197.7
+  },
+  "153": {
+    "x": 625.9,
+    "y": 317.2
+  },
+  "152": {
+    "x": 645.3,
+    "y": 317.3
+  },
+  "151": {
+    "x": 663.8,
+    "y": 317.1
+  },
+  "150": {
+    "x": 682.3,
+    "y": 317.2
+  },
+  "154": {
+    "x": 625.9,
+    "y": 337.2
+  },
+  "155": {
+    "x": 645.3,
+    "y": 337.3
+  },
+  "156": {
+    "x": 663.8,
+    "y": 337.0
+  },
+  "157": {
+    "x": 682.3,
+    "y": 337.1
+  },
+  "161": {
+    "x": 625.9,
+    "y": 357.0
+  },
+  "160": {
+    "x": 645.3,
+    "y": 357.1
+  },
+  "159": {
+    "x": 663.8,
+    "y": 356.8
+  },
+  "158": {
+    "x": 682.3,
+    "y": 357.0
+  },
+  "162": {
+    "x": 627.1,
+    "y": 386.9
+  },
+  "163": {
+    "x": 646.5,
+    "y": 387.0
+  },
+  "164": {
+    "x": 665.0,
+    "y": 386.8
+  },
+  "165": {
+    "x": 683.5,
+    "y": 386.9
+  },
+  "169": {
+    "x": 627.1,
+    "y": 404.7
+  },
+  "168": {
+    "x": 646.5,
+    "y": 404.8
+  },
+  "167": {
+    "x": 665.0,
+    "y": 404.5
+  },
+  "166": {
+    "x": 683.5,
+    "y": 404.7
+  },
+  "170": {
+    "x": 627.1,
+    "y": 424.8
+  },
+  "171": {
+    "x": 646.5,
+    "y": 425.1
+  },
+  "172": {
+    "x": 665.0,
+    "y": 424.7
+  },
+  "173": {
+    "x": 683.5,
+    "y": 424.8
+  },
+  "177": {
+    "x": 627.1,
+    "y": 444.7
+  },
+  "176": {
+    "x": 646.5,
+    "y": 444.9
+  },
+  "175": {
+    "x": 665.0,
+    "y": 444.6
+  },
+  "174": {
+    "x": 683.5,
+    "y": 444.7
+  }
+};
+const RESERVED = [174, 175, 176, 177];
+function tipoLabel(t) {
+  return t ? t + " lug." : "—";
+}
+async function apiList() {
+  const res = await fetch(API_URL + "?action=list");
+  if (!res.ok) throw new Error("Falha ao buscar dados");
+  return res.json();
+}
+async function apiAssign(id, mesa, auth) {
+  const res = await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify(Object.assign({
+      action: "assign",
+      id,
+      mesa
+    }, auth || {}))
+  });
+  return res.json();
+}
+async function apiClear(id, auth) {
+  const res = await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify(Object.assign({
+      action: "clear",
+      id
+    }, auth || {}))
+  });
+  return res.json();
+}
+async function apiCheckCommittee(password) {
+  const res = await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "checkCommittee",
+      password
+    })
+  });
+  return res.json();
+}
+async function apiCheckPin(id, pin) {
+  const res = await fetch(API_URL, {
+    method: "POST",
+    body: JSON.stringify({
+      action: "checkPin",
+      id,
+      pin
+    })
+  });
+  return res.json();
+}
+function TableShape({
+  num,
+  x,
+  y,
+  status,
+  onClick,
+  big
+}) {
+  const r = big ? 8.2 : 7.0;
+  let fill = "#ffffff",
+    stroke = "#cfc8b8";
+  if (status === "reserved") {
+    fill = "var(--reserved)";
+    stroke = "var(--reserved)";
+  } else if (status === "taken") {
+    fill = "var(--taken)";
+    stroke = "var(--taken)";
+  } else if (status === "free") {
+    fill = "var(--free-soft)";
+    stroke = "var(--free)";
+  }
+  const textColor = status === "taken" || status === "reserved" ? "#fff" : "#3a3a3a";
+  return /*#__PURE__*/React.createElement("g", {
+    transform: `translate(${x},${y})`
+  }, /*#__PURE__*/React.createElement("g", {
+    className: "table-shape" + (status === "reserved" ? " disabled" : ""),
+    onClick: () => status !== "reserved" && onClick(num)
+  }, /*#__PURE__*/React.createElement("circle", {
+    r: r,
+    fill: fill,
+    stroke: stroke,
+    strokeWidth: "1.3"
+  }), /*#__PURE__*/React.createElement("text", {
+    className: "table-num",
+    fill: textColor,
+    y: "0.5"
+  }, num)));
+}
+function RoomMap({
+  assignedMap,
+  onTableClick,
+  highlightMesa
+}) {
+  const tables = Object.entries(COORDS).map(([numStr, c]) => {
+    const num = parseInt(numStr, 10);
+    let status = "free";
+    if (RESERVED.includes(num)) status = "reserved";else if (assignedMap[num]) status = "taken";
+    return {
+      num,
+      x: c.x,
+      y: c.y,
+      status
+    };
+  });
+  return /*#__PURE__*/React.createElement("svg", {
+    viewBox: "130 100 610 500",
+    xmlns: "http://www.w3.org/2000/svg"
+  }, /*#__PURE__*/React.createElement("rect", {
+    className: "room-box",
+    x: "140",
+    y: "105",
+    width: "590",
+    height: "485",
+    rx: "3"
+  }), /*#__PURE__*/React.createElement("rect", {
+    x: "332",
+    y: "113",
+    width: "87",
+    height: "60",
+    fill: "none",
+    stroke: "#cc4433",
+    "stroke-width": "1.2"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "375.5",
+    y: "137.5",
+    "font-size": "9",
+    "text-anchor": "middle"
+  }, "PALCO"), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "375.5",
+    y: "148.5",
+    "font-size": "9",
+    "text-anchor": "middle"
+  }, "10,00x8,00"), /*#__PURE__*/React.createElement("rect", {
+    x: "339",
+    y: "173",
+    width: "73",
+    height: "75",
+    fill: "none",
+    stroke: "#cc4433",
+    "stroke-width": "2.2"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "375.5",
+    y: "205.25",
+    "font-size": "8.5",
+    "text-anchor": "middle"
+  }, "PISTA DE"), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "375.5",
+    y: "215.75",
+    "font-size": "8.5",
+    "text-anchor": "middle"
+  }, "DANÇA"), /*#__PURE__*/React.createElement("rect", {
+    x: "342",
+    y: "252",
+    width: "67",
+    height: "58",
+    fill: "none",
+    stroke: "#cc4433",
+    "stroke-width": "1.2"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "375.5",
+    y: "276.0",
+    "font-size": "8",
+    "text-anchor": "middle"
+  }, "BAR DE"), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "375.5",
+    y: "286.0",
+    "font-size": "8",
+    "text-anchor": "middle"
+  }, "DRINKS"), /*#__PURE__*/React.createElement("rect", {
+    x: "258",
+    y: "188",
+    width: "41",
+    height: "32",
+    fill: "none",
+    stroke: "#cc4433",
+    "stroke-width": "1.2"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "278.5",
+    y: "204.0",
+    "font-size": "8",
+    "text-anchor": "middle"
+  }, "BAR"), /*#__PURE__*/React.createElement("rect", {
+    x: "520",
+    y: "112",
+    width: "95",
+    height: "60",
+    fill: "none",
+    stroke: "#cc4433",
+    "stroke-width": "1.2"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "567.5",
+    y: "142.0",
+    "font-size": "9",
+    "text-anchor": "middle"
+  }, "ASIÁTICO"), /*#__PURE__*/React.createElement("rect", {
+    x: "146",
+    y: "186",
+    width: "34",
+    height: "90",
+    fill: "none",
+    stroke: "#cc4433",
+    "stroke-width": "1.2"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "0",
+    y: "0",
+    "font-size": "8",
+    "text-anchor": "middle",
+    transform: "translate(163.0,231.0) rotate(-90)"
+  }, "ITALIANO"), /*#__PURE__*/React.createElement("rect", {
+    x: "149",
+    y: "357",
+    width: "51",
+    height: "94",
+    fill: "none",
+    stroke: "#cc4433",
+    "stroke-width": "1.2"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "0",
+    y: "0",
+    "font-size": "8",
+    "text-anchor": "middle",
+    transform: "translate(174.5,404.0) rotate(-90)"
+  }, "PERSONALIZADO"), /*#__PURE__*/React.createElement("rect", {
+    x: "196",
+    y: "285",
+    width: "53",
+    height: "55",
+    fill: "none",
+    stroke: "#cc4433",
+    "stroke-width": "1.2"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "200",
+    y1: "289",
+    x2: "245",
+    y2: "336",
+    stroke: "#cc4433",
+    "stroke-width": "0.8"
+  }), /*#__PURE__*/React.createElement("line", {
+    x1: "245",
+    y1: "289",
+    x2: "200",
+    y2: "336",
+    stroke: "#cc4433",
+    "stroke-width": "0.8"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "222.5",
+    y: "308.25",
+    "font-size": "6.5",
+    "text-anchor": "middle"
+  }, "LOUNGE"), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "222.5",
+    y: "316.75",
+    "font-size": "6.5",
+    "text-anchor": "middle"
+  }, "WHISK / GIN"), /*#__PURE__*/React.createElement("rect", {
+    x: "247",
+    y: "472",
+    width: "75",
+    height: "38",
+    fill: "none",
+    stroke: "#b9b2a0",
+    "stroke-width": "1"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "284.5",
+    y: "491.0",
+    "font-size": "8",
+    "text-anchor": "middle"
+  }, "HALL"), /*#__PURE__*/React.createElement("rect", {
+    x: "340",
+    y: "558",
+    width: "65",
+    height: "26",
+    fill: "none",
+    stroke: "#cc4433",
+    "stroke-width": "1.2"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "372.5",
+    y: "571.0",
+    "font-size": "7",
+    "text-anchor": "middle"
+  }, "ÁREA FUMANTE"), /*#__PURE__*/React.createElement("rect", {
+    x: "552",
+    y: "290",
+    width: "46",
+    height: "16",
+    fill: "none",
+    stroke: "#cc4433",
+    "stroke-width": "1"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "575.0",
+    y: "298.0",
+    "font-size": "6",
+    "text-anchor": "middle"
+  }, "BUFFET"), /*#__PURE__*/React.createElement("rect", {
+    x: "261",
+    y: "317",
+    width: "46",
+    height: "16",
+    fill: "none",
+    stroke: "#cc4433",
+    "stroke-width": "1"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "284.0",
+    y: "325.0",
+    "font-size": "6",
+    "text-anchor": "middle"
+  }, "BUFFET"), /*#__PURE__*/React.createElement("rect", {
+    x: "455",
+    y: "371",
+    width: "46",
+    height: "16",
+    fill: "none",
+    stroke: "#cc4433",
+    "stroke-width": "1"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "478.0",
+    y: "379.0",
+    "font-size": "6",
+    "text-anchor": "middle"
+  }, "BUFFET"), /*#__PURE__*/React.createElement("rect", {
+    x: "552",
+    y: "371",
+    width: "46",
+    height: "16",
+    fill: "none",
+    stroke: "#cc4433",
+    "stroke-width": "1"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "575.0",
+    y: "379.0",
+    "font-size": "6",
+    "text-anchor": "middle"
+  }, "BUFFET"), /*#__PURE__*/React.createElement("rect", {
+    x: "478",
+    y: "163",
+    width: "33",
+    height: "18",
+    fill: "none",
+    stroke: "#c9c2b0",
+    "stroke-width": "0.8"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "494.5",
+    y: "172.0",
+    "font-size": "5",
+    "text-anchor": "middle"
+  }, "APOIO BAR"), /*#__PURE__*/React.createElement("rect", {
+    x: "641",
+    y: "138",
+    width: "33",
+    height: "18",
+    fill: "none",
+    stroke: "#c9c2b0",
+    "stroke-width": "0.8"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "657.5",
+    y: "147.0",
+    "font-size": "5",
+    "text-anchor": "middle"
+  }, "APOIO BAR"), /*#__PURE__*/React.createElement("rect", {
+    x: "506",
+    y: "443",
+    width: "33",
+    height: "18",
+    fill: "none",
+    stroke: "#c9c2b0",
+    "stroke-width": "0.8"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "522.5",
+    y: "452.0",
+    "font-size": "5",
+    "text-anchor": "middle"
+  }, "APOIO BAR"), /*#__PURE__*/React.createElement("rect", {
+    x: "588",
+    y: "443",
+    width: "33",
+    height: "18",
+    fill: "none",
+    stroke: "#c9c2b0",
+    "stroke-width": "0.8"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "604.5",
+    y: "452.0",
+    "font-size": "5",
+    "text-anchor": "middle"
+  }, "APOIO BAR"), /*#__PURE__*/React.createElement("rect", {
+    x: "325",
+    y: "444",
+    width: "33",
+    height: "18",
+    fill: "none",
+    stroke: "#c9c2b0",
+    "stroke-width": "0.8"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "341.5",
+    y: "453.0",
+    "font-size": "5",
+    "text-anchor": "middle"
+  }, "APOIO BAR"), /*#__PURE__*/React.createElement("rect", {
+    x: "210",
+    y: "446",
+    width: "33",
+    height: "18",
+    fill: "none",
+    stroke: "#c9c2b0",
+    "stroke-width": "0.8"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "226.5",
+    y: "455.0",
+    "font-size": "5",
+    "text-anchor": "middle"
+  }, "APOIO BAR"), /*#__PURE__*/React.createElement("rect", {
+    x: "217",
+    y: "373",
+    width: "33",
+    height: "18",
+    fill: "none",
+    stroke: "#c9c2b0",
+    "stroke-width": "0.8"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "233.5",
+    y: "382.0",
+    "font-size": "5",
+    "text-anchor": "middle"
+  }, "APOIO BAR"), /*#__PURE__*/React.createElement("rect", {
+    x: "217",
+    y: "252",
+    width: "33",
+    height: "18",
+    fill: "none",
+    stroke: "#c9c2b0",
+    "stroke-width": "0.8"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "233.5",
+    y: "261.0",
+    "font-size": "5",
+    "text-anchor": "middle"
+  }, "APOIO BAR"), /*#__PURE__*/React.createElement("rect", {
+    x: "689",
+    y: "368",
+    width: "33",
+    height: "18",
+    fill: "none",
+    stroke: "#c9c2b0",
+    "stroke-width": "0.8"
+  }), /*#__PURE__*/React.createElement("text", {
+    class: "room-label",
+    x: "705.5",
+    y: "377.0",
+    "font-size": "5",
+    "text-anchor": "middle"
+  }, "APOIO BAR"), /*#__PURE__*/React.createElement("text", {
+    className: "room-label",
+    x: "658",
+    y: "466",
+    textAnchor: "middle",
+    fontSize: "7"
+  }, "CHAPELARIA"), tables.map(t => /*#__PURE__*/React.createElement(TableShape, {
+    key: t.num,
+    ...t,
+    big: t.num === highlightMesa,
+    onClick: onTableClick
+  })));
+}
+function Toast({
+  msg,
+  onClose
+}) {
+  useEffect(() => {
+    if (!msg) return;
+    const id = setTimeout(onClose, 3000);
+    return () => clearTimeout(id);
+  }, [msg]);
+  if (!msg) return null;
+  return /*#__PURE__*/React.createElement("div", {
+    className: "toast"
+  }, msg);
+}
+function PasswordGate({
+  title,
+  subtitle,
+  placeholder,
+  onSubmit,
+  onCancel,
+  busy,
+  error
+}) {
+  const [value, setValue] = useState("");
+  function submit(e) {
+    e.preventDefault();
+    if (value.trim()) onSubmit(value.trim());
+  }
+  return /*#__PURE__*/React.createElement("div", {
+    className: "modal-overlay",
+    onClick: onCancel
+  }, /*#__PURE__*/React.createElement("form", {
+    className: "modal",
+    onClick: e => e.stopPropagation(),
+    onSubmit: submit
+  }, /*#__PURE__*/React.createElement("h3", null, title), /*#__PURE__*/React.createElement("p", {
+    className: "sub"
+  }, subtitle), /*#__PURE__*/React.createElement("input", {
+    autoFocus: true,
+    type: "password",
+    inputMode: "numeric",
+    placeholder: placeholder,
+    value: value,
+    onChange: e => setValue(e.target.value)
+  }), error && /*#__PURE__*/React.createElement("p", {
+    style: {
+      color: "var(--taken)",
+      fontSize: 12.5,
+      marginTop: -8,
+      marginBottom: 14
+    }
+  }, error), /*#__PURE__*/React.createElement("div", {
+    className: "modal-actions"
+  }, /*#__PURE__*/React.createElement("button", {
+    type: "button",
+    className: "btn btn-ghost",
+    onClick: onCancel
+  }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
+    type: "submit",
+    className: "btn btn-primary",
+    disabled: busy
+  }, busy ? "Verificando…" : "Entrar"))));
+}
+function App() {
+  const [people, setPeople] = useState([]);
+  const [loaded, setLoaded] = useState(false);
+  const [loadError, setLoadError] = useState(false);
+  const [role, setRole] = useState(null);
+  const [search, setSearch] = useState("");
+  const [selectedPerson, setSelectedPerson] = useState(null);
+  const [toast, setToast] = useState("");
+  const [myPersonId, setMyPersonId] = useState(null);
+  const [myPin, setMyPin] = useState(null);
+  const [busy, setBusy] = useState(false);
+  const [committeePw, setCommitteePw] = useState(null);
+  const [showCommitteeGate, setShowCommitteeGate] = useState(false);
+  const [gateError, setGateError] = useState("");
+  const [gateBusy, setGateBusy] = useState(false);
+  const refresh = useCallback(async () => {
+    try {
+      const data = await apiList();
+      if (data.ok) {
+        setPeople(data.people);
+        setLoadError(false);
+      } else setLoadError(true);
+    } catch (e) {
+      setLoadError(true);
+    }
+    setLoaded(true);
+  }, []);
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
+  useEffect(() => {
+    const id = setInterval(refresh, 8000);
+    return () => clearInterval(id);
+  }, [refresh]);
+  const assignedMap = useMemo(() => {
+    const m = {};
+    people.forEach(p => {
+      if (p.mesa) m[p.mesa] = p.id;
+    });
+    return m;
+  }, [people]);
+  const stats = useMemo(() => {
+    const total = people.length;
+    const done = people.filter(p => p.mesa).length;
+    return {
+      total,
+      done,
+      pct: total ? Math.round(done / total * 100) : 0
+    };
+  }, [people]);
+  async function assignTable(personId, mesaNum, auth) {
+    setBusy(true);
+    try {
+      const res = await apiAssign(personId, mesaNum, auth);
+      if (!res.ok) {
+        setToast(res.error || "Não foi possível salvar");
+        setBusy(false);
+        return false;
+      }
+      setPeople(res.people);
+      setBusy(false);
+      return true;
+    } catch (e) {
+      setToast("Erro de conexão. Verifique sua internet e tente de novo.");
+      setBusy(false);
+      return false;
+    }
+  }
+  async function clearTable(personId, auth) {
+    setBusy(true);
+    try {
+      const res = await apiClear(personId, auth);
+      if (res.ok) setPeople(res.people);else setToast(res.error || "Não foi possível remover");
+      setBusy(false);
+      return res.ok;
+    } catch (e) {
+      setToast("Erro de conexão.");
+      setBusy(false);
+      return false;
+    }
+  }
+  function chooseComissao() {
+    if (committeePw) {
+      setRole("comissao");
+      return;
+    }
+    setGateError("");
+    setShowCommitteeGate(true);
+  }
+  async function handleCommitteePassword(password) {
+    setGateBusy(true);
+    setGateError("");
+    try {
+      const res = await apiCheckCommittee(password);
+      if (res.ok) {
+        setCommitteePw(password);
+        setShowCommitteeGate(false);
+        setRole("comissao");
+      } else {
+        setGateError("Senha incorreta. Tente de novo.");
+      }
+    } catch (e) {
+      setGateError("Erro de conexão. Tente de novo.");
+    }
+    setGateBusy(false);
+  }
+  function logout() {
+    setRole(null);
+    setMyPersonId(null);
+    setMyPin(null);
+    setCommitteePw(null);
+    setSelectedPerson(null);
+  }
+  if (API_URL.indexOf("COLE_AQUI") !== -1) {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "loadingscreen",
+      style: {
+        padding: 30,
+        textAlign: "center"
+      }
+    }, /*#__PURE__*/React.createElement("strong", {
+      style: {
+        fontFamily: "Fraunces, serif",
+        fontSize: 18
+      }
+    }, "Falta configurar a API"), /*#__PURE__*/React.createElement("p", {
+      style: {
+        maxWidth: 420,
+        fontSize: 13.5,
+        color: "var(--muted)"
+      }
+    }, "Abra o arquivo index.html, encontre a linha com API_URL no início do script e cole ali a URL do seu Google Apps Script (termina em /exec)."));
+  }
+  if (!loaded) {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "loadingscreen"
+    }, /*#__PURE__*/React.createElement("div", {
+      className: "spinner"
+    }), "Carregando lista de formandos…");
+  }
+  if (loadError) {
+    return /*#__PURE__*/React.createElement("div", {
+      className: "loadingscreen",
+      style: {
+        padding: 30,
+        textAlign: "center"
+      }
+    }, /*#__PURE__*/React.createElement("strong", {
+      style: {
+        fontFamily: "Fraunces, serif",
+        fontSize: 18
+      }
+    }, "Não foi possível conectar"), /*#__PURE__*/React.createElement("p", {
+      style: {
+        maxWidth: 420,
+        fontSize: 13.5,
+        color: "var(--muted)"
+      }
+    }, "Verifique sua internet e tente recarregar a página. Se o problema continuar, confirme se a URL da API em API_URL está correta e publicada como \"Qualquer pessoa\" pode acessar."), /*#__PURE__*/React.createElement("button", {
+      className: "btn btn-primary",
+      onClick: refresh
+    }, "Tentar de novo"));
+  }
+  if (!role) {
+    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+      style: {
+        padding: "40px 28px",
+        maxWidth: 520,
+        margin: "0 auto"
+      }
+    }, /*#__PURE__*/React.createElement("p", {
+      className: "eyebrow",
+      style: {
+        color: "var(--gold-deep)"
+      }
+    }, "ENGENHARIAS UFSCAR · JULHO 2026"), /*#__PURE__*/React.createElement("h1", {
+      style: {
+        fontFamily: "Fraunces, serif",
+        fontSize: 26,
+        margin: "0 0 8px"
+      }
+    }, "Escolha de Mesa"), /*#__PURE__*/React.createElement("p", {
+      style: {
+        color: "var(--muted)",
+        fontSize: 14,
+        marginBottom: 24
+      }
+    }, "Quem está acessando agora?"), /*#__PURE__*/React.createElement("div", {
+      style: {
+        display: "flex",
+        flexDirection: "column",
+        gap: 12
+      }
+    }, /*#__PURE__*/React.createElement("button", {
+      className: "btn btn-primary",
+      style: {
+        padding: "16px 20px",
+        fontSize: 15,
+        textAlign: "left",
+        borderRadius: 12
+      },
+      onClick: chooseComissao
+    }, "👩‍💼 Sou da comissão — painel completo"), /*#__PURE__*/React.createElement("button", {
+      className: "btn btn-gold",
+      style: {
+        padding: "16px 20px",
+        fontSize: 15,
+        textAlign: "left",
+        borderRadius: 12
+      },
+      onClick: () => setRole("formando")
+    }, "🎓 Sou formando(a) — escolher minha mesa"))), showCommitteeGate && /*#__PURE__*/React.createElement(PasswordGate, {
+      title: "Acesso da comissão",
+      subtitle: "Digite a senha da comissão para continuar.",
+      placeholder: "Senha da comissão",
+      busy: gateBusy,
+      error: gateError,
+      onSubmit: handleCommitteePassword,
+      onCancel: () => setShowCommitteeGate(false)
+    }));
+  }
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "head"
+  }, /*#__PURE__*/React.createElement("div", null, /*#__PURE__*/React.createElement("p", {
+    className: "eyebrow"
+  }, "ENGENHARIAS UFSCAR · JULHO 2026"), /*#__PURE__*/React.createElement("h1", null, "Escolha de Mesa")), /*#__PURE__*/React.createElement("div", {
+    className: "topactions"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "iconbtn",
+    title: "Atualizar",
+    onClick: refresh
+  }, "⟳"), /*#__PURE__*/React.createElement("button", {
+    className: "iconbtn",
+    title: "Sair",
+    onClick: logout
+  }, "↩"))), /*#__PURE__*/React.createElement("div", {
+    className: "body"
+  }, role === "comissao" ? /*#__PURE__*/React.createElement(ComissaoView, {
+    people: people,
+    assignedMap: assignedMap,
+    stats: stats,
+    search: search,
+    setSearch: setSearch,
+    selectedPerson: selectedPerson,
+    setSelectedPerson: setSelectedPerson,
+    assignTable: assignTable,
+    clearTable: clearTable,
+    setToast: setToast,
+    busy: busy,
+    committeePw: committeePw
+  }) : /*#__PURE__*/React.createElement(FormandoView, {
+    people: people,
+    assignedMap: assignedMap,
+    myPersonId: myPersonId,
+    setMyPersonId: setMyPersonId,
+    myPin: myPin,
+    setMyPin: setMyPin,
+    assignTable: assignTable,
+    clearTable: clearTable,
+    setToast: setToast,
+    busy: busy
+  })), /*#__PURE__*/React.createElement(Toast, {
+    msg: toast,
+    onClose: () => setToast("")
+  }));
+}
+function ComissaoView({
+  people,
+  assignedMap,
+  stats,
+  search,
+  setSearch,
+  selectedPerson,
+  setSelectedPerson,
+  assignTable,
+  clearTable,
+  setToast,
+  busy,
+  committeePw
+}) {
+  const [pendingMesa, setPendingMesa] = useState(null);
+  const filtered = useMemo(() => {
+    const s = search.trim().toLowerCase();
+    if (!s) return people;
+    return people.filter(p => p.name.toLowerCase().includes(s));
+  }, [people, search]);
+  function onTableClick(num) {
+    if (!selectedPerson) {
+      setToast("Selecione um formando na lista primeiro");
+      return;
+    }
+    setPendingMesa(num);
+  }
+  async function confirmAssign() {
+    if (selectedPerson && pendingMesa) {
+      const ok = await assignTable(selectedPerson.id, pendingMesa, {
+        committeePassword: committeePw
+      });
+      if (ok) setToast(`${selectedPerson.name} → mesa ${pendingMesa}`);
+      setPendingMesa(null);
+    }
+  }
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "mapcol"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "legend"
+  }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", {
+    className: "dot",
+    style: {
+      background: "var(--free-soft)",
+      border: "1.3px solid var(--free)"
+    }
+  }), "Livre"), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", {
+    className: "dot",
+    style: {
+      background: "var(--taken)"
+    }
+  }), "Ocupada"), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", {
+    className: "dot",
+    style: {
+      background: "var(--reserved)"
+    }
+  }), "Reservada (Vivup)"), selectedPerson && /*#__PURE__*/React.createElement("span", {
+    style: {
+      color: "var(--gold-deep)",
+      fontWeight: 700
+    }
+  }, "Escolhendo para: ", selectedPerson.name)), /*#__PURE__*/React.createElement(RoomMap, {
+    assignedMap: assignedMap,
+    onTableClick: onTableClick,
+    highlightMesa: selectedPerson?.mesa
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "sidecol"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "progress"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "row"
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "num"
+  }, stats.done, "/", stats.total), /*#__PURE__*/React.createElement("span", {
+    className: "label"
+  }, stats.pct, "% concluído")), /*#__PURE__*/React.createElement("div", {
+    className: "bar"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "bar-fill",
+    style: {
+      width: stats.pct + "%"
+    }
+  }))), /*#__PURE__*/React.createElement("div", {
+    className: "searchwrap"
+  }, /*#__PURE__*/React.createElement("input", {
+    placeholder: "Buscar formando…",
+    value: search,
+    onChange: e => setSearch(e.target.value)
+  })), /*#__PURE__*/React.createElement("h3", {
+    className: "panel-title"
+  }, "Lista de formandos"), filtered.length === 0 && /*#__PURE__*/React.createElement("div", {
+    className: "empty"
+  }, "Nenhum nome encontrado."), /*#__PURE__*/React.createElement("ul", {
+    className: "plist"
+  }, filtered.map(p => /*#__PURE__*/React.createElement("li", {
+    key: p.id,
+    className: "prow" + (p.mesa ? " assigned" : ""),
+    style: selectedPerson?.id === p.id ? {
+      borderColor: "var(--gold)",
+      borderWidth: 2
+    } : {},
+    onClick: () => setSelectedPerson(p)
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "pname"
+  }, p.name), /*#__PURE__*/React.createElement("span", {
+    style: {
+      display: "flex",
+      gap: 5,
+      flexShrink: 0
+    }
+  }, p.multi && /*#__PURE__*/React.createElement("span", {
+    className: "badge multi"
+  }, "2 mesas"), /*#__PURE__*/React.createElement("span", {
+    className: "badge tipo" + p.tipo
+  }, tipoLabel(p.tipo)), p.mesa ? /*#__PURE__*/React.createElement("span", {
+    className: "badge mesa"
+  }, "Mesa ", p.mesa) : /*#__PURE__*/React.createElement("span", {
+    className: "badge",
+    style: {
+      background: "#f1ece0",
+      color: "var(--muted)"
+    }
+  }, "—")))))), pendingMesa && selectedPerson && /*#__PURE__*/React.createElement("div", {
+    className: "modal-overlay",
+    onClick: () => setPendingMesa(null)
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("h3", null, "Confirmar mesa ", pendingMesa), /*#__PURE__*/React.createElement("p", {
+    className: "sub"
+  }, selectedPerson.name, " · plano ", tipoLabel(selectedPerson.tipo)), /*#__PURE__*/React.createElement("div", {
+    className: "modal-actions"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-ghost",
+    onClick: () => setPendingMesa(null)
+  }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-primary",
+    disabled: busy,
+    onClick: confirmAssign
+  }, busy ? "Salvando…" : "Confirmar")))), selectedPerson && selectedPerson.mesa && !pendingMesa && /*#__PURE__*/React.createElement("div", {
+    style: {
+      position: "fixed",
+      bottom: 24,
+      right: 24
+    }
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-danger",
+    disabled: busy,
+    onClick: async () => {
+      const ok = await clearTable(selectedPerson.id, {
+        committeePassword: committeePw
+      });
+      if (ok) setToast("Mesa removida");
+    }
+  }, "Remover mesa de ", selectedPerson.name.split(" ")[0])));
+}
+function FormandoView({
+  people,
+  assignedMap,
+  myPersonId,
+  setMyPersonId,
+  myPin,
+  setMyPin,
+  assignTable,
+  clearTable,
+  setToast,
+  busy
+}) {
+  const [query, setQuery] = useState("");
+  const [pendingMesa, setPendingMesa] = useState(null);
+  const [pendingSelectId, setPendingSelectId] = useState(null);
+  const [pinError, setPinError] = useState("");
+  const [pinBusy, setPinBusy] = useState(false);
+  const matches = useMemo(() => {
+    const s = query.trim().toLowerCase();
+    if (s.length < 2) return [];
+    return people.filter(p => p.name.toLowerCase().includes(s)).slice(0, 8);
+  }, [people, query]);
+  const me = people.find(p => p.id === myPersonId);
+  function pickName(id) {
+    setPinError("");
+    setPendingSelectId(id);
+  }
+  async function confirmPin(pin) {
+    setPinBusy(true);
+    setPinError("");
+    try {
+      const res = await apiCheckPin(pendingSelectId, pin);
+      if (res.ok) {
+        setMyPin(pin);
+        setMyPersonId(pendingSelectId);
+        setPendingSelectId(null);
+      } else {
+        setPinError("Código incorreto. Confira o PIN enviado pela comissão.");
+      }
+    } catch (e) {
+      setPinError("Erro de conexão. Tente de novo.");
+    }
+    setPinBusy(false);
+  }
+  function onTableClick(num) {
+    if (!me) {
+      setToast("Encontre seu nome na lista primeiro");
+      return;
+    }
+    if (assignedMap[num]) return;
+    setPendingMesa(num);
+  }
+  async function confirmAssign() {
+    if (me && pendingMesa) {
+      const ok = await assignTable(me.id, pendingMesa, {
+        pin: myPin
+      });
+      if (ok) setToast(`Mesa ${pendingMesa} confirmada para você!`);
+      setPendingMesa(null);
+    }
+  }
+  if (!me) {
+    return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+      className: "mapcol",
+      style: {
+        maxWidth: 520,
+        margin: "0 auto"
+      }
+    }, /*#__PURE__*/React.createElement("h3", {
+      className: "panel-title"
+    }, "Encontre seu nome"), /*#__PURE__*/React.createElement("div", {
+      className: "searchwrap"
+    }, /*#__PURE__*/React.createElement("input", {
+      autoFocus: true,
+      placeholder: "Digite seu nome completo…",
+      value: query,
+      onChange: e => setQuery(e.target.value)
+    })), /*#__PURE__*/React.createElement("ul", {
+      className: "plist"
+    }, matches.map(p => /*#__PURE__*/React.createElement("li", {
+      key: p.id,
+      className: "prow",
+      onClick: () => pickName(p.id)
+    }, /*#__PURE__*/React.createElement("span", {
+      className: "pname"
+    }, p.name), /*#__PURE__*/React.createElement("span", {
+      className: "badge tipo" + p.tipo
+    }, tipoLabel(p.tipo))))), query.trim().length >= 2 && matches.length === 0 && /*#__PURE__*/React.createElement("div", {
+      className: "empty"
+    }, "Não encontramos esse nome. Confira a grafia ou fale com a comissão.")), pendingSelectId && /*#__PURE__*/React.createElement(PasswordGate, {
+      title: "Confirme que é você",
+      subtitle: "Digite o código de 4 dígitos que a comissão te enviou.",
+      placeholder: "Código de 4 dígitos",
+      busy: pinBusy,
+      error: pinError,
+      onSubmit: confirmPin,
+      onCancel: () => setPendingSelectId(null)
+    }));
+  }
+  return /*#__PURE__*/React.createElement(React.Fragment, null, /*#__PURE__*/React.createElement("div", {
+    className: "mapcol"
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "who-banner"
+  }, /*#__PURE__*/React.createElement("p", {
+    className: "role"
+  }, "Você é"), /*#__PURE__*/React.createElement("strong", {
+    style: {
+      fontSize: 15
+    }
+  }, me.name), /*#__PURE__*/React.createElement("div", {
+    className: "small"
+  }, "Plano: ", tipoLabel(me.tipo), me.multi ? " · você possui mais de uma mesa, escolha a que está pesquisando agora" : ""), me.mesa ? /*#__PURE__*/React.createElement("div", {
+    style: {
+      marginTop: 10
+    }
+  }, /*#__PURE__*/React.createElement("span", {
+    className: "badge mesa",
+    style: {
+      fontSize: 13,
+      padding: "5px 10px"
+    }
+  }, "Sua mesa: ", me.mesa)) : /*#__PURE__*/React.createElement("div", {
+    className: "small",
+    style: {
+      marginTop: 8,
+      color: "var(--gold-deep)",
+      fontWeight: 600
+    }
+  }, "Toque numa mesa verde no mapa para escolher")), /*#__PURE__*/React.createElement("div", {
+    className: "legend"
+  }, /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", {
+    className: "dot",
+    style: {
+      background: "var(--free-soft)",
+      border: "1.3px solid var(--free)"
+    }
+  }), "Livre"), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", {
+    className: "dot",
+    style: {
+      background: "var(--taken)"
+    }
+  }), "Ocupada"), /*#__PURE__*/React.createElement("span", null, /*#__PURE__*/React.createElement("span", {
+    className: "dot",
+    style: {
+      background: "var(--reserved)"
+    }
+  }), "Reservada")), /*#__PURE__*/React.createElement(RoomMap, {
+    assignedMap: assignedMap,
+    onTableClick: onTableClick,
+    highlightMesa: me.mesa
+  })), /*#__PURE__*/React.createElement("div", {
+    className: "sidecol"
+  }, /*#__PURE__*/React.createElement("h3", {
+    className: "panel-title"
+  }, "Como escolher"), /*#__PURE__*/React.createElement("p", {
+    style: {
+      fontSize: 13.5,
+      color: "var(--muted)",
+      lineHeight: 1.6
+    }
+  }, "Toque em qualquer mesa verde no mapa. Mesas vermelhas já foram escolhidas por outra pessoa e mesas cinzas estão reservadas para a organização do evento."), me.mesa && /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-danger",
+    style: {
+      marginTop: 14,
+      width: "100%"
+    },
+    disabled: busy,
+    onClick: async () => {
+      const ok = await clearTable(me.id, {
+        pin: myPin
+      });
+      if (ok) setToast("Escolha removida, escolha outra mesa");
+    }
+  }, "Trocar de mesa"), /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-ghost",
+    style: {
+      marginTop: 10,
+      width: "100%",
+      border: "1px solid var(--line)"
+    },
+    onClick: () => {
+      setMyPersonId(null);
+      setMyPin(null);
+    }
+  }, "Não sou eu, voltar")), pendingMesa && /*#__PURE__*/React.createElement("div", {
+    className: "modal-overlay",
+    onClick: () => setPendingMesa(null)
+  }, /*#__PURE__*/React.createElement("div", {
+    className: "modal",
+    onClick: e => e.stopPropagation()
+  }, /*#__PURE__*/React.createElement("h3", null, "Confirmar mesa ", pendingMesa, "?"), /*#__PURE__*/React.createElement("p", {
+    className: "sub"
+  }, "Essa será a sua mesa no evento, ", me.name.split(" ")[0], "."), /*#__PURE__*/React.createElement("div", {
+    className: "modal-actions"
+  }, /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-ghost",
+    onClick: () => setPendingMesa(null)
+  }, "Cancelar"), /*#__PURE__*/React.createElement("button", {
+    className: "btn btn-primary",
+    disabled: busy,
+    onClick: confirmAssign
+  }, busy ? "Salvando…" : "Confirmar mesa")))));
+}
+const root = ReactDOM.createRoot(document.getElementById("root"));
+root.render(/*#__PURE__*/React.createElement(App, null));
+</script>
+</body>
+</html>
